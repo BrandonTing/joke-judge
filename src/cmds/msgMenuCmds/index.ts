@@ -1,5 +1,7 @@
 import { ActionRowBuilder, ApplicationCommandType, MessageContextMenuCommandInteraction, ModalBuilder, RESTPutAPIApplicationCommandsJSONBody, TextInputBuilder, TextInputStyle } from "discord.js";
 import { logger } from "../../utils/logger";
+import db from "../../db";
+import { NewRating, ratings } from "../../db/schema";
 
 enum CmdName {
     RATE_JOKE = '評分',
@@ -30,7 +32,8 @@ export function getMsgContextCmds() {
 }
 
 async function showRateModal(interaction: MessageContextMenuCommandInteraction) {
-    const modalCustomId = `joke-rate-${interaction.id}`
+    const { id, targetId, user, targetMessage, } = interaction
+    const modalCustomId = `joke-rate-${id}`
     const modal = new ModalBuilder({
         customId: modalCustomId,
         title: '笑話評分系統'
@@ -53,13 +56,24 @@ async function showRateModal(interaction: MessageContextMenuCommandInteraction) 
     await interaction.showModal(modal)
 
     interaction.awaitModalSubmit({
-        filter: function (interaction) {
-            return interaction.customId === modalCustomId
+        filter: function (inter) {
+            return inter.customId === modalCustomId
         }, time: 30_000,
-    }).then(function (modalInteraction) {
-        const score = modalInteraction.fields.getTextInputValue('score')
-        const reason = modalInteraction.fields.getTextInputValue('reason')
-        modalInteraction.reply(`${interaction.user.username} 的評分為 ${score}\n理由為: ${reason}`)
+    }).then(async function (modalInteraction) {
+        const score = Number(modalInteraction.fields.getTextInputValue('score'));
+        const reason = modalInteraction.fields.getTextInputValue('reason');
+        const { id, username } = user
+        const newRating: NewRating = {
+            dcMsgId: targetId,
+            content: targetMessage.content,
+            judgeId: id,
+            judgeName: username,
+            score,
+            reason,
+        }
+        await db.insert(ratings).values(newRating)
+        logger.info('saved to db')
+        modalInteraction.reply(`${username} 的評分為 ${score}\n理由為: ${reason}`)
     })
 }
 
