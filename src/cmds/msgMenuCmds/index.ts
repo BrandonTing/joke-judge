@@ -6,7 +6,8 @@ import { eq } from "drizzle-orm";
 
 enum CmdName {
     RATE_JOKE = '評分',
-    GET_AVERAGE_RATES = '取得此笑話平均評分'
+    GET_AVERAGE_RATES = '取得平均評分',
+    GET_HISTORY_RATES = '取得詳細評分紀錄'
 }
 
 const commands = [
@@ -17,8 +18,11 @@ const commands = [
     {
         name: CmdName.GET_AVERAGE_RATES,
         type: ApplicationCommandType.Message
+    },
+    {
+        name: CmdName.GET_HISTORY_RATES,
+        type: ApplicationCommandType.Message
     }
-
 ] satisfies RESTPutAPIApplicationCommandsJSONBody
 
 export function getMsgContextCmds() {
@@ -96,11 +100,52 @@ async function getAverageRatingsOfJoke(interaction: MessageContextMenuCommandInt
     interaction.reply(`笑話內容：${interaction.targetMessage.content}\n平均分數為${averageRatings}\n目前有${ratingCnts}筆評分紀錄，由${currentJudgeCntsOfJoke}人評分`)
 }
 
+async function getHistoricalRatingsOfJoke(interaction: MessageContextMenuCommandInteraction) {
+    const historicalRatings = await db.query.ratings.findMany({
+        where: eq(ratings.dcMsgId, interaction.targetMessage.id),
+        with: {
+            judge: true,
+        }
+    });
+
+    const ratingsGroupedByJudge: {
+        [key: string]: typeof historicalRatings
+    } = historicalRatings.reduce(function (pre, cur) {
+        const { judge } = cur;
+        const { judgeName } = judge
+        const judgeIdHistory = pre[judgeName]
+        if (judgeIdHistory) {
+            return {
+                ...pre,
+                [judgeName]: [
+                    ...judgeIdHistory,
+                    cur
+                ]
+            }
+        }
+        pre[judgeName] = [cur];
+        return pre
+    }, {})
+
+    const ratingList = Object.entries(ratingsGroupedByJudge).map(function ([judge, ratingsOfJudge], i) {
+        const ratingInfoHtml = ratingsOfJudge.map(function ({ score, reason, createTime }) {
+            return `  ${i}. ${score}分；理由為：${reason || '無'}；評分時間：${createTime.toLocaleString()}`
+        }).join('\n')
+        return `- ${judge}: \n${ratingInfoHtml}`
+    }).join('\n')
+
+    interaction.reply(`笑話內容：${interaction.targetMessage.content}\n評分紀錄如下：\n${ratingList}`)
+}
+
 export async function handleMsgContextMenuCmds(interaction: MessageContextMenuCommandInteraction) {
     if (interaction.commandName === CmdName.RATE_JOKE) {
         await showRateModal(interaction)
     }
     if (interaction.commandName === CmdName.GET_AVERAGE_RATES) {
         await getAverageRatingsOfJoke(interaction)
+    }
+
+    if (interaction.commandName === CmdName.GET_HISTORY_RATES) {
+        await getHistoricalRatingsOfJoke(interaction)
     }
 }
