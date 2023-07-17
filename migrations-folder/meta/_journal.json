@@ -22,6 +22,20 @@
       "when": 1689257133095,
       "tag": "0002_dusty_azazel",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1689603190178,
+      "tag": "0003_loose_quasar",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1689603753131,
+      "tag": "0004_colorful_triathlon",
+      "breakpoints": true
     }
   ]
 }

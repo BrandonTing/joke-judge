@@ -1,11 +1,12 @@
 import { ActionRowBuilder, ApplicationCommandType, MessageContextMenuCommandInteraction, ModalBuilder, RESTPutAPIApplicationCommandsJSONBody, TextInputBuilder, TextInputStyle } from "discord.js";
 import { logger } from "../../utils/logger";
 import db from "../../db";
-import { NewRating, ratings } from "../../db/schema";
+import { jokes, judges, ratings } from "../../db/schema";
+import { eq } from "drizzle-orm";
 
 enum CmdName {
     RATE_JOKE = '評分',
-    GET_RATES = '取得此笑話歷史評分'
+    GET_AVERAGE_RATES = '取得此笑話平均評分'
 }
 
 const commands = [
@@ -14,7 +15,7 @@ const commands = [
         type: ApplicationCommandType.Message
     },
     {
-        name: CmdName.GET_RATES,
+        name: CmdName.GET_AVERAGE_RATES,
         type: ApplicationCommandType.Message
     }
 
@@ -63,26 +64,43 @@ async function showRateModal(interaction: MessageContextMenuCommandInteraction) 
         const score = Number(modalInteraction.fields.getTextInputValue('score'));
         const reason = modalInteraction.fields.getTextInputValue('reason');
         const { id, username } = user
-        const newRating: NewRating = {
+
+        await db.insert(jokes).values({
             dcMsgId: targetId,
             content: targetMessage.content,
+        }).onConflictDoNothing()
+
+        await db.insert(judges).values({
             judgeId: id,
             judgeName: username,
+        }).onConflictDoNothing()
+
+        await db.insert(ratings).values({
+            dcMsgId: targetId,
+            judgeId: id,
             score,
             reason,
-        }
-        await db.insert(ratings).values(newRating)
+        })
         logger.info('saved to db')
-        modalInteraction.reply(`${username} 的評分為 ${score}\n理由為: ${reason}`)
+        modalInteraction.reply(`${username} 的評分為 ${score}\n理由為: ${reason || '無'}`)
     })
 }
 
+async function getAverageRatingsOfJoke(interaction: MessageContextMenuCommandInteraction) {
+    const historicalRatings = await db.select().from(ratings).where(eq(ratings.dcMsgId, interaction.targetMessage.id));
+    const ratingCnts = historicalRatings.length;
+    const averageRatings = ratingCnts > 0 ? historicalRatings.reduce(function (pre, cur) {
+        return pre + cur.score
+    }, 0) / ratingCnts : 0;
+    const currentJudgeCntsOfJoke = historicalRatings.map(rating => rating.judgeId).filter((value, index, self) => self.indexOf(value) !== index).length
+    interaction.reply(`笑話內容：${interaction.targetMessage.content}\n平均分數為${averageRatings}\n目前有${ratingCnts}筆評分紀錄，由${currentJudgeCntsOfJoke}人評分`)
+}
 
 export async function handleMsgContextMenuCmds(interaction: MessageContextMenuCommandInteraction) {
     if (interaction.commandName === CmdName.RATE_JOKE) {
         await showRateModal(interaction)
     }
-    // if (interaction.commandName === CmdName.GET_RATES) {
-    //     await handleTranslateToJP(interaction)
-    // }
+    if (interaction.commandName === CmdName.GET_AVERAGE_RATES) {
+        await getAverageRatingsOfJoke(interaction)
+    }
 }
