@@ -129,6 +129,7 @@ async function getHistoricalRatingsOfJoke(interaction: MessageContextMenuCommand
 
     const ratingList = Object.entries(ratingsGroupedByJudge).map(function ([judge, ratingsOfJudge], i) {
         const ratingInfoHtml = ratingsOfJudge.map(function ({ score, reason, createTime }) {
+            // intentionally leave space to create sub list.
             return `  ${i}. ${score}分；理由為：${reason || '無'}；評分時間：${createTime.toLocaleString()}`
         }).join('\n')
         return `- ${judge}: \n${ratingInfoHtml}`
