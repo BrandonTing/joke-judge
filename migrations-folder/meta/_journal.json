@@ -36,6 +36,13 @@
       "when": 1689603753131,
       "tag": "0004_colorful_triathlon",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1690105080669,
+      "tag": "0005_chemical_amphibian",
+      "breakpoints": true
     }
   ]
 }

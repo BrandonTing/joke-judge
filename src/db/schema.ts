@@ -9,6 +9,7 @@ export const judges = pgTable('judges', {
 
 export const jokes = pgTable('jokes', {
     dcMsgId: text('msg_id').notNull().primaryKey(),
+    author: text('author').notNull(),
     content: text('msg_content').notNull(),
     createTime: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });

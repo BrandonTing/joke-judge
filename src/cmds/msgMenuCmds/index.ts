@@ -72,6 +72,7 @@ async function showRateModal(interaction: MessageContextMenuCommandInteraction) 
         await db.insert(jokes).values({
             dcMsgId: targetId,
             content: targetMessage.content,
+            author: targetMessage.author.username
         }).onConflictDoNothing()
 
         await db.insert(judges).values({
@@ -86,7 +87,7 @@ async function showRateModal(interaction: MessageContextMenuCommandInteraction) 
             reason,
         })
         logger.info('saved to db')
-        modalInteraction.reply(`${interaction.targetMessage.author.username}：${interaction.targetMessage.content}\n${username} 的評分為 ${score}\n理由為: ${reason || '無'}`)
+        modalInteraction.reply(`${targetMessage.author.username}：${targetMessage.content}\n${username} 的評分為 ${score}\n理由為: ${reason || '無'}`)
     })
 }
 

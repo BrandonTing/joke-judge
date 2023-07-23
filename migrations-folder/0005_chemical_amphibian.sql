@@ -1,0 +1,1 @@
+ALTER TABLE "jokes" ADD COLUMN "author" text NOT NULL;
