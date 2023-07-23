@@ -97,7 +97,7 @@ async function getAverageRatingsOfJoke(interaction: MessageContextMenuCommandInt
         return pre + cur.score
     }, 0) / ratingCnts : 0;
     const currentJudgeCntsOfJoke = historicalRatings.map(rating => rating.judgeId).filter((value, index, self) => self.indexOf(value) !== index).length
-    interaction.reply(`笑話內容：${interaction.targetMessage.content}\n平均分數為${averageRatings}\n目前有${ratingCnts}筆評分紀錄，由${currentJudgeCntsOfJoke}人評分`)
+    interaction.reply(`${interaction.targetMessage.author.username}：${interaction.targetMessage.content}\n平均分數為${averageRatings}\n目前有${ratingCnts}筆評分紀錄，由${currentJudgeCntsOfJoke}人評分`)
 }
 
 async function getHistoricalRatingsOfJoke(interaction: MessageContextMenuCommandInteraction) {
@@ -135,7 +135,7 @@ async function getHistoricalRatingsOfJoke(interaction: MessageContextMenuCommand
         return `- ${judge}: \n${ratingInfoHtml}`
     }).join('\n')
 
-    interaction.reply(`笑話內容：${interaction.targetMessage.content}\n評分紀錄如下：\n${ratingList}`)
+    interaction.reply(`${interaction.targetMessage.author.username}：${interaction.targetMessage.content}\n評分紀錄如下：\n${ratingList}`)
 }
 
 export async function handleMsgContextMenuCmds(interaction: MessageContextMenuCommandInteraction) {
