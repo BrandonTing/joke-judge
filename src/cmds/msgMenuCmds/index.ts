@@ -86,7 +86,7 @@ async function showRateModal(interaction: MessageContextMenuCommandInteraction) 
             reason,
         })
         logger.info('saved to db')
-        modalInteraction.reply(`笑話內容：${interaction.targetMessage.content}\n${username} 的評分為 ${score}\n理由為: ${reason || '無'}`)
+        modalInteraction.reply(`${interaction.targetMessage.author.username}：${interaction.targetMessage.content}\n${username} 的評分為 ${score}\n理由為: ${reason || '無'}`)
     })
 }
 
