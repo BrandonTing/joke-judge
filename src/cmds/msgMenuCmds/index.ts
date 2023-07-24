@@ -97,7 +97,9 @@ async function getAverageRatingsOfJoke(interaction: MessageContextMenuCommandInt
     const averageRatings = ratingCnts > 0 ? historicalRatings.reduce(function (pre, cur) {
         return pre + cur.score
     }, 0) / ratingCnts : 0;
-    const currentJudgeCntsOfJoke = historicalRatings.map(rating => rating.judgeId).filter((value, index, self) => self.indexOf(value) !== index).length
+    const currentJudgeCntsOfJoke = historicalRatings
+        .map(rating => rating.judgeId)
+        .filter((value, index, self) => self.indexOf(value) === index).length
     interaction.reply(`${interaction.targetMessage.author.username}：${interaction.targetMessage.content}\n平均分數為${averageRatings}\n目前有${ratingCnts}筆評分紀錄，由${currentJudgeCntsOfJoke}人評分`)
 }
 
