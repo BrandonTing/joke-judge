@@ -35,9 +35,9 @@
     "discord.js": "^14.11.0",
     "dotenv": "^16.3.1",
     "drizzle-orm": "^0.27.2",
-    "envsafe": "^2.0.3",
     "pino": "^8.14.1",
     "pino-pretty": "^10.0.0",
-    "postgres": "^3.3.5"
+    "postgres": "^3.3.5",
+    "zod": "^3.21.4"
   }
 }
