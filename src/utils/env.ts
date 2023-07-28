@@ -1,15 +1,9 @@
-import { str, envsafe, } from 'envsafe';
+import { z } from 'zod';
 
-export const env = envsafe({
-    NODE_ENV: str({
-        devDefault: 'dev',
-        choices: ['dev', 'test', 'production'],
-    }),
-    // add discord keys
-    DISCORD_BOT_TOKEN: str({
-        desc: 'DISCORD Application 的token'
-    }),
-    DISCORD_BOT_CLIENT_ID: str({
-        desc: 'ID of bot'
-    }),
-});
+const envSchema = z.object({
+    DISCORD_BOT_TOKEN: z.string(),
+    DISCORD_BOT_CLIENT_ID: z.string(),
+    DATABASE_URL: z.string(),
+})
+
+export default envSchema.parse(process.env)
