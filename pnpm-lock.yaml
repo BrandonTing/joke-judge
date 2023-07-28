@@ -14,9 +14,6 @@ dependencies:
   drizzle-orm:
     specifier: ^0.27.2
     version: 0.27.2(postgres@3.3.5)
-  envsafe:
-    specifier: ^2.0.3
-    version: 2.0.3
   pino:
     specifier: ^8.14.1
     version: 8.14.1
@@ -1307,11 +1304,6 @@ packages:
     resolution: {integrity: sha512-+uw1inIHVPQoaVuHzRyXd21icM+cnt4CzD5rW+NC1wjOUSTOs+Te7FOv7AhN7vS9x/oIyhLP5PR1H+phQAHu5Q==}
     dependencies:
       once: 1.4.0
-    dev: false
-
-  /envsafe@2.0.3:
-    resolution: {integrity: sha512-51lek8h5btjXhXUDW//Pno7HPydM1WQzltOb1/ONRKdwB2QkfAURnN4Qn0cJ5LzGvX2Km1ReR2O3K3Bqq9sBMg==}
-    engines: {node: '>=10'}
     dev: false
 
   /es5-ext@0.10.62:
