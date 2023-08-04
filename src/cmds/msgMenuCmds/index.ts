@@ -4,26 +4,18 @@ import db from "../../db";
 import { jokes, judges, ratings } from "../../db/schema";
 import { eq } from "drizzle-orm";
 
-enum CmdName {
-    RATE_JOKE = '評分',
-    GET_AVERAGE_RATES = '取得平均評分',
-    GET_HISTORY_RATES = '取得詳細評分紀錄'
-}
+const cmdName = {
+    rateJoke: '評分',
+    getAverageRatings: '取得平均評分',
+    getHistoryRatings: '取得詳細評分紀錄',
+} as const
 
-const commands = [
-    {
-        name: CmdName.RATE_JOKE,
-        type: ApplicationCommandType.Message
-    },
-    {
-        name: CmdName.GET_AVERAGE_RATES,
-        type: ApplicationCommandType.Message
-    },
-    {
-        name: CmdName.GET_HISTORY_RATES,
+const commands = Object.values(cmdName).map(function (cmd) {
+    return {
+        name: cmd,
         type: ApplicationCommandType.Message
     }
-] satisfies RESTPutAPIApplicationCommandsJSONBody
+}) satisfies RESTPutAPIApplicationCommandsJSONBody
 
 export function getMsgContextCmds() {
     // try {
@@ -163,13 +155,13 @@ async function getHistoricalRatingsOfJoke(interaction: MessageContextMenuCommand
 }
 
 export async function handleMsgContextMenuCmds(interaction: MessageContextMenuCommandInteraction) {
-    if (interaction.commandName === CmdName.RATE_JOKE) {
+    if (interaction.commandName === cmdName.rateJoke) {
         await showRateModal(interaction)
     }
-    if (interaction.commandName === CmdName.GET_AVERAGE_RATES) {
+    if (interaction.commandName === cmdName.getAverageRatings) {
         await getAverageRatingsOfJoke(interaction)
     }
-    if (interaction.commandName === CmdName.GET_HISTORY_RATES) {
+    if (interaction.commandName === cmdName.getHistoryRatings) {
         await getHistoricalRatingsOfJoke(interaction)
     }
 }
