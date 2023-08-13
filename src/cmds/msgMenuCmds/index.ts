@@ -82,14 +82,26 @@ async function showRateModal(interaction: MessageContextMenuCommandInteraction) 
                     reason,
                 })
                 logger.info('saved to db')
-                modalInteraction.reply(`${targetMessage.author.username}：${targetMessage.content}\n${username} 的評分為 ${score}\n理由為: ${reason || '無'}`)
+                modalInteraction.reply({
+                    content: "評分成功",
+                    ephemeral: true
+                })
+                targetMessage.channel.send({
+                    content: `${targetMessage.author.username}：${targetMessage.content}\n${username} 的評分為 ${score}\n理由為: ${reason || '無'}`,
+                    reply: {
+                        messageReference: targetMessage
+                    }
+                })
             } catch (err) {
                 logger.error(`[ShowRateModal Modal Interaction Error]: ${err}`)
-                modalInteraction.reply('Create Rating Failed. Please try again or contact yuliang_ting for help.')
+                modalInteraction.reply({
+                    content: 'Create Rating Failed. Please try again or contact yuliang_ting for help.',
+                    ephemeral: true
+                })
             }
         })
     } catch (err) {
-        logger.error(`[ShowRateModal Error]: ${err}`)
+        logger.error(`[ShowRateModal Error]: ${err}`);
     }
 }
 
@@ -102,7 +114,7 @@ async function getAverageRatingsOfJoke(interaction: MessageContextMenuCommandInt
         }, 0) / ratingCnts : 0;
         const currentJudgeCntsOfJoke = historicalRatings
             .map(rating => rating.judgeId)
-            .filter((value, index, self) => self.indexOf(value) === index).length
+            .filter((value, index, self) => self.indexOf(value) === index).length;
         interaction.reply(`${interaction.targetMessage.author.username}：${interaction.targetMessage.content}\n平均分數為${averageRatings}\n目前有${ratingCnts}筆評分紀錄，由${currentJudgeCntsOfJoke}人評分`)
     } catch (err) {
         logger.error(`[GetAverageRatingsOfJoke Error]: ${err}`)
